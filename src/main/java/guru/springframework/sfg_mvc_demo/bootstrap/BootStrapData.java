@@ -34,11 +34,10 @@ public class BootStrapData implements CommandLineRunner {
 
     private Customer createCustomer(String firstName, String lastName) {
 
-        Customer customer = new Customer();
-        customer.setFirstname(firstName);
-        customer.setLastname(lastName);
-
-        return customer;
+        return Customer.builder()
+                .firstname(firstName)
+                .lastname(lastName)
+                .build();
     }
 
 }

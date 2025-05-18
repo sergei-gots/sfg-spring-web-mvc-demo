@@ -24,9 +24,10 @@ public class CustomerMvcFullStackTest {
     @Test
     void shouldReturn201AndSavedCustomer_whenPostCustomer() throws  Exception {
 
-        Customer customerToSave = new Customer();
-        customerToSave.setFirstname("Jesse");
-        customerToSave.setLastname("Porter");
+        Customer customerToSave = Customer.builder()
+                .firstname("Jesse")
+                .lastname("Porter")
+                .build();
 
         ResponseEntity<Customer> responseEntity = restTemplate.postForEntity(
                 CustomerController.BASE_URL,
