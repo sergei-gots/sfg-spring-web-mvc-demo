@@ -4,15 +4,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import guru.springframework.sfg_mvc_demo.domain.Customer;
 import guru.springframework.sfg_mvc_demo.exception.GlobalExceptionHandler;
 import guru.springframework.sfg_mvc_demo.services.CustomerService;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -20,57 +18,46 @@ import java.util.NoSuchElementException;
 import static guru.springframework.sfg_mvc_demo.domain.CustomerUtil.buildCustomer;
 import static org.hamcrest.Matchers.containsString;
 import static org.mockito.Mockito.when;
-import static  org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-
 /**
- * 'Controller layer' Unit Test
- * Created by sergei on 18/05/2025
+ * 'Controller slice' Spring MVC Test
+ * Created by sergei on 19/05/2025
  */
-@ExtendWith(MockitoExtension.class)
-class CustomerControllerUnitTest {
+@WebMvcTest(CustomerController.class)
+@Import(GlobalExceptionHandler.class) // если надо
+class CustomerControllerWebMvcTest {
 
+    @Autowired
     private MockMvc mockMvc;
 
-    ObjectMapper objectMapper = new ObjectMapper();
-
-    @InjectMocks
-    private CustomerController customerController;
-
-    @Mock
+    @MockBean
     private CustomerService customerService;
 
-    @BeforeEach
-    void setUp() {
-        mockMvc = MockMvcBuilders.standaloneSetup(customerController)
-                .setControllerAdvice(new GlobalExceptionHandler())
-                .build();
-    }
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @Test
     void testCreateCustomer() throws Exception {
-
         Customer createdCustomer = buildCustomer(1, "Sam", "Axe");
 
         when(customerService.createCustomer(createdCustomer))
                 .thenReturn(createdCustomer);
 
-        mockMvc.perform(
-                    post(CustomerController.BASE_URL, createdCustomer)
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .characterEncoding("UTF-8")
-                            .content(objectMapper.writeValueAsString(createdCustomer))
+        mockMvc.perform(post(CustomerController.BASE_URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding("UTF-8")
+                        .content(objectMapper.writeValueAsString(createdCustomer))
                 )
                 .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(1L))
                 .andExpect(jsonPath("$.firstname").value("Sam"))
                 .andExpect(jsonPath("$.lastname").value("Axe"));
-
     }
 
     @Test
