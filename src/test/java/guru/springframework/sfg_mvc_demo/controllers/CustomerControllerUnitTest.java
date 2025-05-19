@@ -1,5 +1,6 @@
 package guru.springframework.sfg_mvc_demo.controllers;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import guru.springframework.sfg_mvc_demo.domain.Customer;
 import guru.springframework.sfg_mvc_demo.exception.GlobalExceptionHandler;
 import guru.springframework.sfg_mvc_demo.services.CustomerService;
@@ -9,6 +10,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
@@ -18,6 +20,8 @@ import java.util.NoSuchElementException;
 import static org.hamcrest.Matchers.containsString;
 import static org.mockito.Mockito.when;
 import static  org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -25,6 +29,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class CustomerControllerUnitTest {
 
     private MockMvc mockMvc;
+
+    ObjectMapper objectMapper = new ObjectMapper();
 
     @InjectMocks
     private CustomerController customerController;
@@ -40,7 +46,24 @@ class CustomerControllerUnitTest {
     }
 
     @Test
-    void testCreateCustomer() {
+    void testCreateCustomer() throws Exception {
+
+        Customer createdCustomer = buildCustomer(1, "Sam", "Axe");
+
+        when(customerService.createCustomer(createdCustomer))
+                .thenReturn(createdCustomer);
+
+        mockMvc.perform(
+                    post(CustomerController.BASE_URL, createdCustomer)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .characterEncoding("UTF-8")
+                            .content(objectMapper.writeValueAsString(createdCustomer))
+                )
+                .andDo(print())
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").value(1L))
+                .andExpect(jsonPath("$.firstname").value("Sam"))
+                .andExpect(jsonPath("$.lastname").value("Axe"));
 
     }
 
@@ -71,10 +94,9 @@ class CustomerControllerUnitTest {
 
         mockMvc.perform(get(CustomerController.BASE_URL + '/' + 7))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(1))
-                .andExpect(jsonPath("$[0].id").value(1L))
-                .andExpect(jsonPath("$[0].firstname").value("Agent"))
-                .andExpect(jsonPath("$[0].lastname").value("Pearce"));
+                .andExpect(jsonPath("$.id").value(7L))
+                .andExpect(jsonPath("$.firstname").value("Agent"))
+                .andExpect(jsonPath("$.lastname").value("Pearce"));
     }
 
     @Test

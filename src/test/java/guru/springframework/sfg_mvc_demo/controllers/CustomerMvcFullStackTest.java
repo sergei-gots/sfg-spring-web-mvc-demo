@@ -22,7 +22,7 @@ public class CustomerMvcFullStackTest {
     private TestRestTemplate restTemplate;
 
     @Test
-    void shouldReturn201AndSavedCustomer_whenPostCustomer() throws  Exception {
+    void testCreateCustomer() throws  Exception {
 
         Customer customerToSave = Customer.builder()
                 .firstname("Jesse")
@@ -45,7 +45,7 @@ public class CustomerMvcFullStackTest {
     }
 
     @Test
-    void shouldReturnAllCustomers_whenGetCustomer() throws  Exception {
+    void testGetAllCustomers() throws  Exception {
 
         ResponseEntity<Customer[]> responseEntity = restTemplate.getForEntity(CustomerController.BASE_URL, Customer[].class);
 
@@ -56,7 +56,7 @@ public class CustomerMvcFullStackTest {
     }
 
     @Test
-    void shouldReturnCustomer_whenGetCustomer1() throws  Exception {
+    void testGetCustomer() throws  Exception {
 
         ResponseEntity<Customer> responseEntity =
                 restTemplate.getForEntity(CustomerController.BASE_URL + "/1", Customer.class);
@@ -72,7 +72,7 @@ public class CustomerMvcFullStackTest {
     }
 
     @Test
-    void shouldReturn404_whenGetCustomer42() throws  Exception {
+    void whenGetCustomer42_thenReturn404() throws  Exception {
 
         ResponseEntity<String> responseEntity =
                 restTemplate.getForEntity(CustomerController.BASE_URL + "/42", String.class);
@@ -82,6 +82,5 @@ public class CustomerMvcFullStackTest {
         assertTrue(responseEntity.getBody().contains("not found"));
 
     }
-
 
 }
