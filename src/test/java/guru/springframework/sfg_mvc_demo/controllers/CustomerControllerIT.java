@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * Created by sergei on 16/05/2025
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class CustomerMvcFullStackTest {
+public class CustomerControllerIT {
 
     @Autowired
     private TestRestTemplate restTemplate;
